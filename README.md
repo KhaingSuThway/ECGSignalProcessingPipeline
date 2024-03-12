@@ -6,6 +6,6 @@ This repository houses code for preprocessing ECG signals, including cleaning, s
 
 ```mermaid
 graph TD
-    A[Segment ECG Record] --> B[Clean Noise]
-    B --> C[Transform to Image]
-'''
+    A[Scan the given record] --> B[Segment the record]
+    B --> C[Clean the segmented ECG data]
+    C --> D[Transform to image]
