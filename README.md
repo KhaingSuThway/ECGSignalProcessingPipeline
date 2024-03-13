@@ -17,7 +17,7 @@ graph LR
 
 -Transform to image: Convert the cleaned ECG segments into the desired image format.
 
-#### Getting Started
+### Getting Started
 **1.Clone the Repository**
 ```
 git clone https://github.com/KhaingSuThway/ECGSignalProcessingPipeline.git
@@ -25,8 +25,13 @@ cd ECGSignalProcessing
 
 ```
 
-**2.Create a Virtual Environment** (optional but recommended):
+**2.Create a Virtual Environment** (optional but recommended)
 ``` 
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+**3.Install Dependencies**
+```
+pip install -r requirements.txt
 ```
