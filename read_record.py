@@ -99,11 +99,11 @@ class Record:
                 rhythm_interval.append(interval)
         return rhythm_interval
     
-    def get_valid_rhythm_interval(self):
+    def get_valid_rhythm_interval(self,duration):
         rhythm_intervals = self.get_rhythm_interval()
         return [itval for itval in rhythm_intervals if self.is_interval_valid(interval=itval,
-                                                                           sampling_freq=200,
-                                                                           duration=30)]
+                                                                           sampling_freq=self.__sf,
+                                                                           duration=duration)]
         
     def is_interval_valid(self, interval, sampling_freq, duration):
         return abs(interval[1] - interval[0]) >= (sampling_freq * duration)
