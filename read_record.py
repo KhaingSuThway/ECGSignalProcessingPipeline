@@ -69,6 +69,10 @@ class Record:
                 return np.where(np.asarray(self.__symbol) == "+")[0]
             elif this == "(N":
                 return np.where(np.asarray(self.__aux) == '(N')[0]
+            elif this=='(AFIB':
+                return np.where(np.asarray(self.__aux) == '(AFIB')[0]
+            else:
+                return print("No Index for this")
             
     def get_intersect_of(self, a, b):
         """
@@ -83,7 +87,7 @@ class Record:
         """
         return np.intersect1d(a, b, return_indices=True)
     
-    def get_rhythm_interval(self):
+    def get_nsr_interval(self):
         rhythm_interval = list()
         plus_indexes = self.get_indexes_of('+')
         N_indexes = self.get_indexes_of("(N")
@@ -99,8 +103,27 @@ class Record:
                 rhythm_interval.append(interval)
         return rhythm_interval
     
-    def get_valid_rhythm_interval(self,duration):
-        rhythm_intervals = self.get_rhythm_interval()
+    def get_afib_interval(self):
+        rhythm_interval = list()
+        plus_indexes = self.get_indexes_of('+')
+        AFIB_indexes = self.get_indexes_of("(AFIB")
+        if len(plus_indexes) != 0 and len(AFIB_indexes) != 0:
+            _, a_indexes, b_indexes = self.get_intersect_of(a=AFIB_indexes, b=plus_indexes)
+            for i in range(len(b_indexes)-1):
+                interval_start = AFIB_indexes[i]
+                interval_end = plus_indexes[b_indexes[i]+1]
+                interval = (self.__sample[interval_start], self.__sample[interval_end])
+                rhythm_interval.append(interval)
+            if plus_indexes[-1] == AFIB_indexes[-1]:
+                interval = (self.__sample[AFIB_indexes[-1]], len(self.__signal))
+                rhythm_interval.append(interval)
+        return rhythm_interval
+    
+    def get_valid_rhythm_interval(self,duration,type='NSR'):
+        if type=='NSR':
+            rhythm_intervals = self.get_nsr_interval()
+        if type=='AF':
+            rhythm_intervals=self.get_afib_interval()
         return [itval for itval in rhythm_intervals if self.is_interval_valid(interval=itval,
                                                                            sampling_freq=self.__sf,
                                                                            duration=duration)]
