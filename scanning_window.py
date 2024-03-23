@@ -63,7 +63,7 @@ def scan_without_interval(record, window_width):
     elif types_of_step == 'sec':
         window_step = int(no_of_beats_per_step * sampfreq)
 
-    ecg_signals = pd.DataFrame()
+    ecg_signals = []
     beat_annotations = []
     beat_annotated_points = []
     pac_percentages = []
@@ -71,11 +71,11 @@ def scan_without_interval(record, window_width):
     true_class = []
 
     while right_end <= len(signal):  
-        print("left_end:", left_end)
-        print("right_end:", right_end)
-        print("window_width:", window_width)
+        # print("left_end:", left_end)
+        # print("right_end:", right_end)
+        # print("window_width:", window_width)
       
-        signal_within_window = signal[left_end:right_end]
+        signal_within_window = signal[left_end:right_end]        
         ecg_signals.append(signal_within_window)
 
         annotated_index = np.intersect1d(np.where(left_end <= sample),
@@ -107,9 +107,9 @@ def scan_without_interval(record, window_width):
     parent_record_repeated = [record._Record__parent] * len(ecg_signals)
     label_repeated = [record._Record__label] * len(ecg_signals)
     heart_rate_repeated = [heart_rate] * len(ecg_signals)
-
-    data_within_window = pd.DataFrame({'signals': ecg_signals,
-                                       'beat_annotation_symbols': beat_annotations,
+    
+    signal=pd.DataFrame(ecg_signals)
+    info = pd.DataFrame({'beat_annotation_symbols': beat_annotations,
                                        'annotated_samples': beat_annotated_points,
                                        'parent_record': parent_record_repeated,
                                        'pac_percent': pac_percentages,
@@ -117,6 +117,7 @@ def scan_without_interval(record, window_width):
                                        'avg_heart_rate': heart_rate_repeated,
                                        'label': label_repeated,
                                        'true_class': true_class})
+    data_within_window=pd.concat([signal,info],axis=1)
 
     print(f"There are {data_within_window.shape[0]} segments in the record.")
 
@@ -152,20 +153,19 @@ def scan_with_interval(record, window_width):
         true_class = []
         # Ensure valid_interval is array-like
         if isinstance(valid_interval, (list, tuple)) and len(valid_interval) > 0:
-           
+                      
             for interval in valid_interval:                        
-                left_end = interval[0][0]
-                print(left_end)
+                left_end = interval[0]                
                 right_end = left_end+(window_width * sampfreq)            
                 
-                while right_end <= interval[0][1]:
+                while right_end <= interval[1]:
                     # Process the interval
-                    signal_within_window = record._Record__signal[left_end:right_end]                
+                    signal_within_window = record._Record__signal[left_end:right_end]          
                     ecg_signals.append(signal_within_window)
 
                     annotated_index = np.intersect1d(np.where(left_end <= record._Record__sample),
                                     np.where(right_end >= record._Record__sample))   
-                    print(annotated_index)             
+                                 
 
                     symbol_within_window = [record._Record__symbol[i] for i in annotated_index]
                     beat_annotations.append(symbol_within_window)
@@ -192,17 +192,17 @@ def scan_with_interval(record, window_width):
                     print(f"left_end pt: {left_end}")
                     right_end = left_end + int(window_width * sampfreq)
                 
-            else:
-                # Handle case when valid_interval is not array-like
-                print("Invalid interval:", valid_interval)
-                # Optionally, you can perform alternative actions here
+        else:
+            # Handle case when valid_interval is not array-like
+            print("Invalid interval:", valid_interval)
+            # Optionally, you can perform alternative actions here
         
         parent_record_repeated = [record._Record__parent] * len(ecg_signals)
         label_repeated = [record._Record__label] * len(ecg_signals)
         heart_rate_repeated = [heart_rate] * len(ecg_signals)
 
-        data_within_window = pd.DataFrame({'parent_record': parent_record_repeated,
-                                        'signals': ecg_signals,
+        signal= pd.DataFrame(ecg_signals)
+        info = pd.DataFrame({'parent_record': parent_record_repeated,                                        
                                         'beat_annotation_symbols': beat_annotations,
                                         'annotated_samples': beat_annotated_points,
                                         'pac_percent': pac_percentages,
@@ -210,6 +210,7 @@ def scan_with_interval(record, window_width):
                                         'avg_heart_rate': heart_rate_repeated,
                                         'label': label_repeated,
                                         'true_class': true_class})
+        data_within_window=pd.concat([signal,info],axis=1)
 
         return data_within_window
         
@@ -233,7 +234,10 @@ def scan_with_interval(record, window_width):
 
 def determine_true_class(label, pac_percentage, pvc_percentage):
     if is_NSR(label, pac_percentage, pvc_percentage):
-        return 'NSR'
+        if is_pure_NSR(label, pac_percentage, pvc_percentage):
+            return 'Pure_NSR'
+        else:
+            return 'NSR'    
     elif is_PAC(label, pac_percentage, pvc_percentage):
         return 'PAC'
     elif is_PVC(label, pac_percentage, pvc_percentage):
@@ -247,13 +251,16 @@ def is_AF(label, pac_percentage, pvc_percentage):
     return label != 'non atrial fibrillation' and pac_percentage == 0 and pvc_percentage == 0
 
 def is_NSR(label, pac_percentage, pvc_percentage):
-    return label == 'non atrial fibrillation' and pac_percentage == 0 and pvc_percentage == 0
+    return label == 'non atrial fibrillation' and pac_percentage <20 and pvc_percentage <20
 
 def is_PAC(label, pac_percentage, pvc_percentage):
     return label == 'non atrial fibrillation' and pac_percentage >= 20 and pvc_percentage == 0
 
 def is_PVC(label, pac_percentage, pvc_percentage):
     return label == 'non atrial fibrillation' and pac_percentage == 0 and pvc_percentage >= 20
+
+def is_pure_NSR(label, pac_percentage, pvc_percentage):
+    return label == 'non atrial fibrillation' and pac_percentage==0 and pvc_percentage==0
 
         
         
