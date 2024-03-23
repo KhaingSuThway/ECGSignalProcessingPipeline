@@ -35,3 +35,26 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 pip install -r requirements.txt
 ```
+
+
+## Overview
+
+`read_record.py` is a Python module for reading ECG (Electrocardiogram) records in WFDB (Waveform Database) format. It provides functionality to read ECG signals, annotations, sample indices, comments, and sampling frequency from WFDB records and represents them as `Record` objects.
+
+## Features
+- Reads ECG records from WFDB format.
+- Extracts ECG signals, annotations, sample indices, comments, and sampling frequency.
+- Provides a `Record` class to represent ECG records.
+
+## Usage
+```python
+from read_record import RecordReader
+
+# Specify path to record directory, record name, channel, sample range
+record = RecordReader.read(path='path/to/records', number='record_name', channel=0, sampfrom=0, sampto=1000)
+
+# Access record attributes
+print(record['parent'])  # Print parent of the record
+print(record['label'])   # Print label or comment associated with the record
+# Access other attributes similarly
+```
