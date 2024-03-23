@@ -55,15 +55,15 @@ def scan_without_interval(record, window_width):
     right_end = int(window_width * sampfreq)
     heart_rate = calculate_bpm(signal, sampfreq)
     heart_cycle = heart_rate / 60
-    types_of_step = input("Choose 'bpm' or 'sec': ")
-    no_of_beats_per_step = int(input("Give number of steps: "))
+    types_of_step = 'bpm' #input("Choose 'bpm' or 'sec': ")
+    no_of_beats_per_step = 1 #int(input("Give number of steps: "))
 
     if types_of_step == 'bpm':
         window_step = int((no_of_beats_per_step * heart_cycle) * sampfreq)
     elif types_of_step == 'sec':
         window_step = int(no_of_beats_per_step * sampfreq)
 
-    ecg_signals = []
+    ecg_signals = pd.DataFrame()
     beat_annotations = []
     beat_annotated_points = []
     pac_percentages = []
@@ -108,10 +108,10 @@ def scan_without_interval(record, window_width):
     label_repeated = [record._Record__label] * len(ecg_signals)
     heart_rate_repeated = [heart_rate] * len(ecg_signals)
 
-    data_within_window = pd.DataFrame({'parent_record': parent_record_repeated,
-                                       'signals': ecg_signals,
+    data_within_window = pd.DataFrame({'signals': ecg_signals,
                                        'beat_annotation_symbols': beat_annotations,
                                        'annotated_samples': beat_annotated_points,
+                                       'parent_record': parent_record_repeated,
                                        'pac_percent': pac_percentages,
                                        'pvc_percent': pvc_percentages,
                                        'avg_heart_rate': heart_rate_repeated,
@@ -128,8 +128,8 @@ def scan_with_interval(record, window_width):
     heart_rate = calculate_bpm(signal, sampfreq)
     heart_cycle = heart_rate / 60
     
-    types_of_step = input("Choose 'bpm' or 'sec': ")
-    no_of_beats_per_step = int(input("Give number of steps: "))
+    types_of_step = 'bpm'#input("Choose 'bpm' or 'sec': ")
+    no_of_beats_per_step = 1 #int(input("Give number of steps: "))
     
     if types_of_step == 'bpm':
         window_step = int((no_of_beats_per_step * heart_cycle) * sampfreq)
@@ -152,49 +152,50 @@ def scan_with_interval(record, window_width):
         true_class = []
         # Ensure valid_interval is array-like
         if isinstance(valid_interval, (list, tuple)) and len(valid_interval) > 0:
-                        
-            left_end = valid_interval[0][0]
-            print(left_end)
-            right_end = left_end+(window_width * sampfreq)            
-            
-            while right_end <= valid_interval[0][1]:
-                # Process the interval
-                signal_within_window = record._Record__signal[left_end:right_end]                
-                ecg_signals.append(signal_within_window)
-
-                annotated_index = np.intersect1d(np.where(left_end <= record._Record__sample),
-                                  np.where(right_end >= record._Record__sample))   
-                print(annotated_index)             
-
-                symbol_within_window = [record._Record__symbol[i] for i in annotated_index]
-                beat_annotations.append(symbol_within_window)
-
-                sample_within_window = [record._Record__sample[i] - left_end for i in annotated_index]
-                beat_annotated_points.append(sample_within_window)
-
-                # Calculate percentages and true class
-                beats, count = np.unique(symbol_within_window, return_counts=True)
-                segment_beat_annotation_count = dict(zip(beats, count))
-                total_count = sum(segment_beat_annotation_count.values())
+           
+            for interval in valid_interval:                        
+                left_end = interval[0][0]
+                print(left_end)
+                right_end = left_end+(window_width * sampfreq)            
                 
-                pac_percentage = segment_beat_annotation_count.get('A', 0) / total_count * 100
-                pac_percentages.append(pac_percentage)
-                pvc_percentage = segment_beat_annotation_count.get('V', 0) / total_count * 100
-                pvc_percentages.append(pvc_percentage)
-                
-                true_class.append(determine_true_class(record._Record__label,
-                                                    pac_percentage,
-                                                    pvc_percentage)) 
-                
+                while right_end <= interval[0][1]:
+                    # Process the interval
+                    signal_within_window = record._Record__signal[left_end:right_end]                
+                    ecg_signals.append(signal_within_window)
 
-                left_end += window_step
-                print(f"left_end pt: {left_end}")
-                right_end = left_end + int(window_width * sampfreq)
-            
-        else:
-            # Handle case when valid_interval is not array-like
-            print("Invalid interval:", valid_interval)
-            # Optionally, you can perform alternative actions here
+                    annotated_index = np.intersect1d(np.where(left_end <= record._Record__sample),
+                                    np.where(right_end >= record._Record__sample))   
+                    print(annotated_index)             
+
+                    symbol_within_window = [record._Record__symbol[i] for i in annotated_index]
+                    beat_annotations.append(symbol_within_window)
+
+                    sample_within_window = [record._Record__sample[i] - left_end for i in annotated_index]
+                    beat_annotated_points.append(sample_within_window)
+
+                    # Calculate percentages and true class
+                    beats, count = np.unique(symbol_within_window, return_counts=True)
+                    segment_beat_annotation_count = dict(zip(beats, count))
+                    total_count = sum(segment_beat_annotation_count.values())
+                    
+                    pac_percentage = segment_beat_annotation_count.get('A', 0) / total_count * 100
+                    pac_percentages.append(pac_percentage)
+                    pvc_percentage = segment_beat_annotation_count.get('V', 0) / total_count * 100
+                    pvc_percentages.append(pvc_percentage)
+                    
+                    true_class.append(determine_true_class(record._Record__label,
+                                                        pac_percentage,
+                                                        pvc_percentage)) 
+                    
+
+                    left_end += window_step
+                    print(f"left_end pt: {left_end}")
+                    right_end = left_end + int(window_width * sampfreq)
+                
+            else:
+                # Handle case when valid_interval is not array-like
+                print("Invalid interval:", valid_interval)
+                # Optionally, you can perform alternative actions here
         
         parent_record_repeated = [record._Record__parent] * len(ecg_signals)
         label_repeated = [record._Record__label] * len(ecg_signals)

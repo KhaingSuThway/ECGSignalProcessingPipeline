@@ -66,11 +66,11 @@ class Record:
         
         if (len(self.__symbol) > 0) and (len(self.__aux)) > 0:
             if this == "+":
-                return np.where(np.asarray(self.__symbol) == "+")[0]
+                return np.where(np.asarray(self.__symbol) == "+")
             elif this == "(N":
-                return np.where(np.asarray(self.__aux) == '(N')[0]
+                return np.where(np.asarray(self.__aux) == '(N')
             elif this=='(AFIB':
-                return np.where(np.asarray(self.__aux) == '(AFIB')[0]
+                return np.where(np.asarray(self.__aux) == '(AFIB')
             else:
                 return print("No Index for this")
             
@@ -89,37 +89,50 @@ class Record:
     
     def get_nsr_interval(self):
         rhythm_interval = list()
+        
         plus_indexes = self.get_indexes_of('+')
         N_indexes = self.get_indexes_of("(N")
+        
         if len(plus_indexes) != 0 and len(N_indexes) != 0:
             _, a_indexes, b_indexes = self.get_intersect_of(a=N_indexes, b=plus_indexes)
             for i in range(len(b_indexes)-1):
                 interval_start = N_indexes[i]
                 interval_end = plus_indexes[b_indexes[i]+1]
                 interval = (self.__sample[interval_start], self.__sample[interval_end])
+                
                 rhythm_interval.append(interval)
-            if plus_indexes[-1] == N_indexes[-1]:
-                interval = (self.__sample[N_indexes[-1]], len(self.__signal))
+            if plus_indexes[-1][-1] == N_indexes[-1][-1]:
+                interval = (self.__sample[N_indexes[-1][-1]], len(self.__signal))
                 rhythm_interval.append(interval)
         return rhythm_interval
     
     def get_afib_interval(self):
         rhythm_interval = list()
-        plus_indexes = self.get_indexes_of('+')
-        AFIB_indexes = self.get_indexes_of("(AFIB")
+        
+        plus_indexes = self.get_indexes_of('+') [0] 
+        print(plus_indexes)      
+        AFIB_indexes = self.get_indexes_of("(AFIB")[0]
+        print(AFIB_indexes)
+        
         if len(plus_indexes) != 0 and len(AFIB_indexes) != 0:
+            
             _, a_indexes, b_indexes = self.get_intersect_of(a=AFIB_indexes, b=plus_indexes)
-            for i in range(len(b_indexes)-1):
+            
+            for i in range(len(b_indexes)):
                 interval_start = AFIB_indexes[i]
                 interval_end = plus_indexes[b_indexes[i]+1]
                 interval = (self.__sample[interval_start], self.__sample[interval_end])
                 rhythm_interval.append(interval)
-            if plus_indexes[-1] == AFIB_indexes[-1]:
+            # Use .all() if you want to check if all elements are True
+            if (plus_indexes[-1] == AFIB_indexes[-1]):
+                
                 interval = (self.__sample[AFIB_indexes[-1]], len(self.__signal))
                 rhythm_interval.append(interval)
         return rhythm_interval
+
+
     
-    def get_valid_rhythm_interval(self,duration,type='NSR'):
+    def get_valid_rhythm_interval(self,duration,type=None):
         if type=='NSR':
             rhythm_intervals = self.get_nsr_interval()
         if type=='AF':
