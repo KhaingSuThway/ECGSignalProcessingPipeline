@@ -2,6 +2,7 @@ import os
 import wfdb
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from collections import Counter
 
 class Record:
@@ -92,7 +93,9 @@ class Record:
         
         plus_indexes = self.get_indexes_of('+')
         N_indexes = self.get_indexes_of("(N")
-        
+        if not N_indexes[0]:  # This checks if N_indexes list is empty
+            print("There ain't rhythm annotation")
+            return None
         if len(plus_indexes) != 0 and len(N_indexes) != 0:
             _, a_indexes, b_indexes = self.get_intersect_of(a=N_indexes, b=plus_indexes)
             for i in range(len(b_indexes)-1):
@@ -109,10 +112,12 @@ class Record:
     def get_afib_interval(self):
         rhythm_interval = list()
         
-        plus_indexes = self.get_indexes_of('+') [0] 
-        print(plus_indexes)      
+        plus_indexes = self.get_indexes_of('+') [0]              
         AFIB_indexes = self.get_indexes_of("(AFIB")[0]
-        print(AFIB_indexes)
+        if not AFIB_indexes:  # This checks if N_indexes list is empty
+            print("There ain't rhythm annotation")
+            return None
+        
         
         if len(plus_indexes) != 0 and len(AFIB_indexes) != 0:
             
@@ -222,6 +227,20 @@ class Record:
     def which(self):
         return self.__parent
     
+    def plot_signal_with_annotation(self, ann_style='r.', figsize=(15, 6)):
+        """
+        Plot the ECG signal with annotations.
+
+        Args:
+            ann_style (str): Style of annotation markers.
+            figsize (tuple): Size of the figure.
+
+        Returns:
+            None
+        """
+        plot_signal_with_annotation(self.__signal, self.__symbol, self.__sample,
+                                    self.__sf, ann_style=ann_style, figsize=figsize)
+    
 class RecordReader:
     """Class for reading ECG records."""
     
@@ -274,3 +293,36 @@ class RecordReader:
                       sample=sample,
                       label=comment,
                       sf=sf)
+
+
+def plot_signal_with_annotation(signal,annotation_symbols,annotation_indices,
+                                sampling_freq,ann_style='r.',figsize=(15,6)):
+        
+    #create time axis
+    time=np.arange(len(signal))/sampling_freq
+    
+    pvc_percentage=100*(Counter(annotation_symbols)['V']/Counter(annotation_symbols)['N'])
+    pac_percentage=100*(Counter(annotation_symbols)['A']/Counter(annotation_symbols)['N'])
+    
+    
+    
+    plt.tight_layout()
+    # Create a figure with the desired size
+    plt.figure(figsize=figsize)
+    plt.ylim(-3,5)
+    #plot the signal
+    plt.grid(True)
+    plt.plot(time,signal)
+    
+    plt.text(0.5, -0.23,f"PVC Percentage:{pvc_percentage:.2f} \nPAC Percentage:{pac_percentage:.2f}",
+             transform=plt.gca().transAxes, ha='center',fontsize=12)
+    
+    for idx,symbol in zip(annotation_indices,annotation_symbols):
+        plt.plot(idx/sampling_freq,signal[idx],ann_style)
+        plt.annotate(symbol,(idx/sampling_freq,signal[idx]),xytext=(4,5),textcoords='offset pixels')
+        
+    #set plot title and label
+    #plt.title("Signal with annotation")
+    plt.xlabel("Time(s)")
+    plt.ylabel("Amplitube (mV)")
+    plt.xlim(0,time[-1])
