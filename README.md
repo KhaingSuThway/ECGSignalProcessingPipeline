@@ -39,7 +39,7 @@ pip install -r requirements.txt
 
 ## Overview
 
-### read_record.py
+### [read_record.py](read_record.py)
 `read_record.py` is a Python module for reading ECG (Electrocardiogram) records in WFDB (Waveform Database) format. It provides functionality to read ECG signals, annotations, sample indices, comments, and sampling frequency from WFDB records and represents them as `Record` objects.
 
 ### Features
@@ -60,7 +60,7 @@ print(record['label'])   # Print label or comment associated with the record
 # Access other attributes similarly
 ```
 
-### scanning_window.py
+### [scanning_window.py](scanning_window.py)
 
 `scanning_window.py` is a Python module for analyzing ECG records by scanning through specified windows. It provides functions to calculate heart rate from ECG signals and scan through ECG records with or without rhythm intervals.
 
@@ -83,7 +83,7 @@ window_step = 1  # seconds
 data_within_window = scan_record(record, window_width, window_step)
 ```
 
-### transform_image.py
+### [transform_image.py](transform_image.py)
 
 `transform_image.py` module provides functions to transform time series data, such as electrocardiogram (ECG) signals, into visual representations. It offers a range of methods to convert raw signal data into various types of images suitable for analysis and visualization.
 
