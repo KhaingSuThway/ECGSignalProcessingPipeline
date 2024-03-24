@@ -39,6 +39,7 @@ pip install -r requirements.txt
 
 ## Overview
 
+### read_record.py
 `read_record.py` is a Python module for reading ECG (Electrocardiogram) records in WFDB (Waveform Database) format. It provides functionality to read ECG signals, annotations, sample indices, comments, and sampling frequency from WFDB records and represents them as `Record` objects.
 
 ## Features
@@ -57,4 +58,27 @@ record = RecordReader.read(path='path/to/records', number='record_name', channel
 print(record['parent'])  # Print parent of the record
 print(record['label'])   # Print label or comment associated with the record
 # Access other attributes similarly
+```
+
+### scanning_window.py
+
+`scanning_window.py` is a Python module for analyzing ECG records by scanning through specified windows. It provides functions to calculate heart rate from ECG signals and scan through ECG records with or without rhythm intervals.
+
+## Features
+- Calculates heart rate from ECG signals.
+- Scans ECG records within specified windows.
+- Identifies different types of beats (e.g., AF, NSR, PAC, PVC) within each window.
+- Determines the true class of each segment based on beat annotations and percentages.
+
+## Usage
+```python
+from scanning_window import calculate_bpm, scan_record
+
+# Calculate heart rate from ECG signal
+heart_rate = calculate_bpm(signal, sampfreq)
+
+# Scan ECG record within specified window
+window_width = 5  # seconds
+window_step = 1  # seconds
+data_within_window = scan_record(record, window_width, window_step)
 ```
