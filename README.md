@@ -1,6 +1,15 @@
 ## ECG Signal Processing Pipeline
 
-This repository houses code for preprocessing ECG signals, including cleaning, segmentation, and transformation into images. These processed ECG images can then be fed into custom networks or systems for in-depth analysis, classification, or prediction.
+This repository houses code for preprocessing ECG signals, including cleaning, segmentation, and transformation into images. These processed ECG images can then be fed into custom networks or systems for in-depth analysis, classification, or prediction. The raw 1-dimentsional unstructred time-series ECG data is collected from the https://physionet.org/about/database/. 
+Among many databases in the physionet, the open source databases MIT BIH Arrhythmias, Long Term Atrial Fibrillation databases and Chian Physiological Signal Challenge 2021 are applied. 
+ 
+ ```mermaid
+ flowchart LR
+ A[Data Source]--->B[(Physionnet)]
+ B-->C[MIT BIH Arrhythmias Database]
+ B-->D[Long Term Atrial Fibrillation Database]
+B-->E[CPSC 2021 ]
+ ```
 
 ## Processing Steps
 ```mermaid
