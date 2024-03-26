@@ -112,9 +112,9 @@ class Record:
     def get_afib_interval(self):
         rhythm_interval = list()
         
-        plus_indexes = self.get_indexes_of('+') [0]              
-        AFIB_indexes = self.get_indexes_of("(AFIB")[0]
-        if not AFIB_indexes:  # This checks if N_indexes list is empty
+        plus_indexes = self.get_indexes_of('+')
+        AFIB_indexes = self.get_indexes_of("(AFIB")
+        if not AFIB_indexes[0]:  # This checks if N_indexes list is empty
             print("There ain't rhythm annotation")
             return None
         
