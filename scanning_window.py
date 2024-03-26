@@ -138,10 +138,15 @@ def scan_with_interval(record, window_width):
         window_step = int(no_of_beats_per_step * sampfreq)
         
     
-    nsr_interval = record.get_valid_rhythm_interval(duration=window_width, type='NSR') 
-    print(f"NSR interval is from {nsr_interval}")
-    af_interval = record.get_valid_rhythm_interval(duration=window_width, type='AF') 
-    print(f"AF interval is from {af_interval}")
+    nsr_interval = record.get_nsr_interval()
+    if len(nsr_interval):
+        nsr_interval=record.get_valid_rhythm_interval(duration=window_width, type='NSR') 
+        print(f"NSR interval is from {nsr_interval}")
+    
+    af_interval = record.get_nsr_interval()
+    if len(af_interval):
+        af_interval=record.get_valid_rhythm_interval(duration=window_width, type='AF') 
+        print(f"AF interval is from {af_interval}")
     
     def process_interval(valid_interval):
         
@@ -225,10 +230,17 @@ def scan_with_interval(record, window_width):
         data_within_nsr_interval = process_interval(nsr_interval)
 
     # Concatenate data from both intervals
-    data_within = pd.concat([data_within_af_interval, data_within_nsr_interval])
-
-    print(f"There are {data_within.shape[0]} segments in the record.")
-    
+    if len(data_within_af_interval) and len(data_within_nsr_interval):
+        data_within = pd.concat([data_within_af_interval, data_within_nsr_interval])
+        print(f"There are {data_within.shape[0]} segments in the record.")
+    elif len(data_within_af_interval) or len(data_within_nsr_interval):
+        if len(data_within_af_interval):
+            data_within=data_within_af_interval
+            print(f"There are {data_within.shape[0]} segments in the record.")
+        if len(data_within_nsr_interval):
+            data_within=data_within_nsr_interval
+            print(f"There are {data_within.shape[0]} segments in the record.")
+            
     return data_within
 
 
