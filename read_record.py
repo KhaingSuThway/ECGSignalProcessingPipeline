@@ -65,13 +65,13 @@ class Record:
         """
         
         
-        if (len(self.__symbol) > 0) and (len(self.__aux)) > 0:
+        if (len(self.__symbol) > 0) or (len(self.__aux)) > 0:
             if this == "+":
-                return np.where(np.asarray(self.__symbol) == "+")
+                return np.where(np.asarray(self.__symbol)=='+')[0]
             elif this == "(N":
-                return np.where(np.asarray(self.__aux) == '(N')
+                return np.where(np.asarray(self.__aux) == '(N')[0]
             elif this=='(AFIB':
-                return np.where(np.asarray(self.__aux) == '(AFIB')
+                return np.where(np.asarray(self.__aux)=='(AFIB')[0]
             else:
                 return print("No Index for this")
             
@@ -93,7 +93,7 @@ class Record:
         
         plus_indexes = self.get_indexes_of('+')
         N_indexes = self.get_indexes_of("(N")
-        if not N_indexes[0]:  # This checks if N_indexes list is empty
+        if not len(N_indexes):  # This checks if N_indexes list is empty
             print("There ain't rhythm annotation")
             return None
         if len(plus_indexes) != 0 and len(N_indexes) != 0:
@@ -104,8 +104,8 @@ class Record:
                 interval = (self.__sample[interval_start], self.__sample[interval_end])
                 
                 rhythm_interval.append(interval)
-            if plus_indexes[-1][-1] == N_indexes[-1][-1]:
-                interval = (self.__sample[N_indexes[-1][-1]], len(self.__signal))
+            if plus_indexes[-1] == N_indexes[-1]:
+                interval = (self.__sample[N_indexes[-1]], len(self.__signal))
                 rhythm_interval.append(interval)
         return rhythm_interval
     
@@ -113,25 +113,20 @@ class Record:
         rhythm_interval = list()
         
         plus_indexes = self.get_indexes_of('+')
-        AFIB_indexes = self.get_indexes_of("(AFIB")
-        if not AFIB_indexes[0]:  # This checks if N_indexes list is empty
+        afib_indexes = self.get_indexes_of("(AFIB")
+        if not len(afib_indexes):  # This checks if N_indexes list is empty
             print("There ain't rhythm annotation")
-            return None
-        
-        
-        if len(plus_indexes) != 0 and len(AFIB_indexes) != 0:
-            
-            _, a_indexes, b_indexes = self.get_intersect_of(a=AFIB_indexes, b=plus_indexes)
-            
-            for i in range(len(b_indexes)):
-                interval_start = AFIB_indexes[i]
+            return []
+        if len(plus_indexes) != 0 and len(afib_indexes) != 0:
+            _, a_indexes, b_indexes = self.get_intersect_of(a=afib_indexes, b=plus_indexes)
+            for i in range(len(b_indexes)-1):
+                interval_start = afib_indexes[i]
                 interval_end = plus_indexes[b_indexes[i]+1]
                 interval = (self.__sample[interval_start], self.__sample[interval_end])
-                rhythm_interval.append(interval)
-            # Use .all() if you want to check if all elements are True
-            if (plus_indexes[-1] == AFIB_indexes[-1]):
                 
-                interval = (self.__sample[AFIB_indexes[-1]], len(self.__signal))
+                rhythm_interval.append(interval)
+            if plus_indexes[-1] == afib_indexes[-1]:
+                interval = (self.__sample[afib_indexes[-1]], len(self.__signal))
                 rhythm_interval.append(interval)
         return rhythm_interval
 
@@ -228,18 +223,10 @@ class Record:
         return self.__parent
     
     def plot_signal_with_annotation(self, ann_style='r.', figsize=(15, 6)):
-        """
-        Plot the ECG signal with annotations.
-
-        Args:
-            ann_style (str): Style of annotation markers.
-            figsize (tuple): Size of the figure.
-
-        Returns:
-            None
-        """
+        
         plot_signal_with_annotation(self.__signal, self.__symbol, self.__sample,
                                     self.__sf, ann_style=ann_style, figsize=figsize)
+        return
     
 class RecordReader:
     """Class for reading ECG records."""
@@ -283,7 +270,10 @@ class RecordReader:
         symbol = ann.symbol
         aux = ann.aux_note
         sample = ann.sample
-        comment = wfdb.rdrecord(fullpath).comments[0]
+        if wfdb.rdrecord(fullpath).comments:
+            comment = wfdb.rdrecord(fullpath).comments[0]
+        else:
+            comment=[]
         sf = wfdb.rdrecord(fullpath).fs
         
         return Record(parent=number,
@@ -301,11 +291,10 @@ def plot_signal_with_annotation(signal,annotation_symbols,annotation_indices,
     #create time axis
     time=np.arange(len(signal))/sampling_freq
     
-    pvc_percentage=100*(Counter(annotation_symbols)['V']/Counter(annotation_symbols)['N'])
-    pac_percentage=100*(Counter(annotation_symbols)['A']/Counter(annotation_symbols)['N'])
+    pvc_percentage=100*(Counter(annotation_symbols)['V']/len(annotation_symbols))
+    pac_percentage=100*(Counter(annotation_symbols)['A']/len(annotation_symbols))
     
-    
-    
+        
     plt.tight_layout()
     # Create a figure with the desired size
     plt.figure(figsize=figsize)
