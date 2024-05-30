@@ -50,8 +50,8 @@ def segment_cardiac_epoch(bpm):
         raise ValueError("Heart rate (bpm) must be a positive value.")
 
     epoch_width = bpm / 60
-    epoch_start = -0.3 / epoch_width
-    epoch_end = 0.45 / epoch_width
+    epoch_start = -0.28 / epoch_width
+    epoch_end = 0.38 / epoch_width
 
     if bpm >= 90:
         c = 0.15
@@ -107,10 +107,10 @@ def get_combined_beat_image(signal=None, bpm=None, voltage_range=[-3, 3], folder
         ValueError: If signal is empty or bpm is not provided.
     """
     # Generate cardiac epochs from the ECG signal
-    beats = ecg_segment(signal, bpm, rpeaks=None, sampling_rate=200)
+    beats = ecg_segment(signal, bpm, rpeaks=None, sampling_rate=128)
     
     # Create a figure
-    fig = plt.figure(num=1, figsize=(5, 8), dpi=300)
+    fig = plt.figure(num=1, figsize=(6,6), dpi=300)
     ax = fig.add_subplot(111)
     ax.axis("off")
     
