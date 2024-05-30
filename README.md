@@ -18,13 +18,13 @@ graph LR
     B --> C[Clean the segmented ECG data]
     C --> D[Transform to image]
 ```
--Scan the given record: Input the ECG signal, window width, and window step to scan the record.
+- Scan the given record: Input the ECG signal, window width, and window step to scan the record.
 
--Segment the record: Divide the scanned record into desired segments.
+- Segment the record: Divide the scanned record into desired segments.
 
--Clean the segmented ECG data: Remove noise and artifacts from the segmented ECG.
+- Clean the segmented ECG data: Remove noise and artifacts from the segmented ECG.
 
--Transform to image: Convert the cleaned ECG segments into the desired image format.
+- Transform to image: Convert the cleaned ECG segments into the desired image format.
 
 ### Getting Started
 **1.Clone the Repository**
