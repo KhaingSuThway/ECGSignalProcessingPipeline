@@ -138,12 +138,12 @@ def scan_with_interval(record, window_width):
         
     
     nsr_interval = record.get_nsr_interval()
-    if len(nsr_interval):
+    if nsr_interval:
         nsr_interval=record.get_valid_rhythm_interval(duration=window_width, type='NSR') 
         print(f"NSR interval is from {nsr_interval}")
     
     af_interval = record.get_nsr_interval()
-    if len(af_interval):
+    if af_interval:
         af_interval=record.get_valid_rhythm_interval(duration=window_width, type='AF') 
         print(f"AF interval is from {af_interval}")
 
@@ -197,7 +197,8 @@ def scan_with_interval(record, window_width):
                         beat_annotated_points.append(sample_within_window)
                         
 
-                    left_end += int(window_width * sampfreq)                    
+                    #left_end += int(window_width * sampfreq)     
+                    left_end = left_end + window_step               
                     right_end = left_end + int(window_width * sampfreq)
                 
         else:
