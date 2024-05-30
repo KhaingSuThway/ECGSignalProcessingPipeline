@@ -97,10 +97,10 @@ data_within_window = scan_record(record, window_width, window_step)
 `transform_image.py` module provides functions to transform time series data, such as electrocardiogram (ECG) signals, into visual representations. It offers a range of methods to convert raw signal data into various types of images suitable for analysis and visualization.
 
 ### Features
-- Combined Beat Image: Generate a combined beat image from an ECG signal, showcasing individual heartbeats overlaid on a single axis.
-- Autocorrelation Plot Image: Create an autocorrelation plot from a time series signal, displaying the correlation between the signal and its lagged versions.
-- Recurrence Plot Image: Generate a recurrence plot from a time series signal, illustrating the recurrence of states in a phase space reconstructed from the signal.
-- Spectrogram Image (To be implemented): Produce a spectrogram image from a time series signal, revealing its frequency content over time.
+- Combined Beat Image: Generate a combined beat image from an ECG signal, showcasing individual heartbeats overlaid on a single axis.(Finished)
+- Autocorrelation Plot Image: Create an autocorrelation plot from a time series signal, displaying the correlation between the signal and its lagged versions.(On progress)
+- Recurrence Plot Image: Generate a recurrence plot from a time series signal, illustrating the recurrence of states in a phase space reconstructed from the signal.(On progress)
+- Spectrogram Image (To be implemented): Produce a spectrogram image from a time series signal, revealing its frequency content over time.(On progress)
 
 These functions offer valuable insights into the characteristics and patterns present in time series data, facilitating further analysis and interpretation.
 
@@ -117,3 +117,9 @@ img_path = get_combined_beat_image(signal=ecg_signal, bpm=60, folder_name="image
 print("Image saved at:", img_path)
 
 ```
+
+### Process All Records
+
+The process_all_records function processes all ECG records in a specified folder, segments them, filters based on the specified type, and generates corresponding CSV files and combined beat images.
+
+In the test_modules notebook, you can experiment with each module and observe the results, offering a hands-on experience to see the pipeline in action.
