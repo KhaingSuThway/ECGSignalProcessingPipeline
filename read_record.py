@@ -313,5 +313,6 @@ def plot_signal_with_annotation(signal,annotation_symbols,annotation_indices,
     #set plot title and label
     #plt.title("Signal with annotation")
     plt.xlabel("Time(s)")
+    plt.ylim(-2,3)
     plt.ylabel("Amplitube (mV)")
     plt.xlim(0,time[-1])
